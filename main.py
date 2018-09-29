@@ -5,7 +5,16 @@
 # @Notes: WIP
 # -------------------------
 import requests
+import logging
 import json
+
+
+# ------------
+# Globals
+logging.basicConfig(filename="betterSplunkITSI.log", filemode='w', level=logging.DEBUG, format='%(asctime)s.%(msecs)03d %(levelname)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S' )
+debug = 1
+# End Globals
+# ------------
 
 class splunkInstance:
     
@@ -16,7 +25,6 @@ class splunkInstance:
         Much of the data set here is to make a ubiquitous URI when connecting
         ------
         TODO: Name is a place holder. object represents literally a single splunk instance so using literal for now.
-        TODO: 
         ------
         Variables:
         \t-host: The splunk servers IP address or DNS alias. Defaults to localhost
@@ -36,6 +44,7 @@ class splunkInstance:
             self.debug = debug
         except Exception as E1:
             print('Error Code E1 encountered while in splunkInstance __init__\n')
+            logging.error('Error E1 in splunkInstance__init__ Please check configuration parameters')
             raise ValueError(E1)
         
     def __set_base_URL(self):
@@ -53,6 +62,7 @@ class splunkInstance:
         except Exception as E2:
             print('Error Code E2 encountered while in splunkInstance __set_base_URL\n')
             raise ValueError(E2)
+
     def __interpret_ssl(self, ssl_input):
         '''
         Private method that reads the configuration input from the user to determine what the ssl state should be set to.
@@ -121,6 +131,7 @@ class splunkInstance:
         else:
             # was not a valid json
             print('invalid Json submitted')
+
     def retrieve_indexes(self, **kwargs):
         '''
         Retrieves indexes from Splunk via REST
@@ -149,7 +160,75 @@ class splunkInstance:
                 if (key == 'attribute'):
                     attributes.append(value)
                 # if attribute present as str value in dictionaries returned, return only that value
-                
+
+    def __debug_message(self, msg):
+        '''
+        REPLs a message out to stdo stream if debug is enabled
+        '''
+        if(debug == 1):
+            print(str(msg))
+            logging.debug(str(msg))
+
+    def retrieve_correlation_search_count(self, recordSearches=0):
+        '''
+        Retrieves correlation_searches from Splunk ITSI
+        WIP
+        TODO: API currently broken in ITSI, think of alternative way to list these out...
+
+        Parameters:
+         - recordSearches: integer, 0/1, default 0. If true, writes search results out to file
+        '''
+        try:
+            self.__debug_message(msg='starting correlation search count')
+            endpointPath = "/servicesNS/nobody/SA-ITOA/event_management_interface/correlation_search/?"
+            tempUrl = self.baseUrl+str(endpointPath) +"/\?limit\=1"
+            #endpointPath = "/services/saved/searches"
+            #tempUrl = self.baseUrl+str(endpointPath)
+            currentRequest = requests.get(auth=(self.authUser, self.authPass),url=tempUrl,verify=False)
+            if (recordSearches==1):
+                recordSearchesFile = open('recordedSearches.xml', 'w')
+                recordSearchesFile.write(str(currentRequest.text))
+                recordSearchesFile.close()
+            self.__debug_message(msg='Got past current_requests')
+            self.__debug_message('Status Code = '+str(currentRequest.status_code))
+            self.__debug_message('Status_Text = '+str(currentRequest.text))
+
+        except Exception as Error01:
+            systemMessage = str(Error01)
+            errorTitle = "Error01"
+            errorDesc = ""
+            ErrorMsg = 'ErrorTitle="%s" ErrorMessage="%s" System_Message="%s' %(errorTitle, errorDesc, systemMessage)
+            logging.error(ErrorMsg)
+            raise Exception(ErrorMsg)
+
+    def retrieve_search_jobs(self, recordSearches=0):
+        '''
+        Retrieves correlation_searches from Splunk ITSI
+
+        Parameters:
+         - recordSearches: integer, 0/1, default 0. If true, writes search results out to file
+        '''
+        try:
+            self.__debug_message(msg='starting search jobs record')
+            #endpointPath = "/services/search/jobs"
+            #tempUrl = self.baseUrl+str(endpointPath) +"/\?limit\=1"
+            endpointPath = "/services/search/jobs"
+            tempUrl = self.baseUrl+str(endpointPath)
+            currentRequest = requests.get(auth=(self.authUser, self.authPass),url=tempUrl,verify=False)
+            if (recordSearches==1):
+                recordSearchesFile = open('recordedSearches.xml', 'w')
+                recordSearchesFile.write(str(currentRequest.text))
+                recordSearchesFile.close()
+            self.__debug_message(msg='Got past current_requests')
+            self.__debug_message('Status Code = '+str(currentRequest.status_code))
+            self.__debug_message('Status_Text = '+str(currentRequest.text))
+        except Exception as Error02:
+            systemMessage = str(Error02)
+            errorTitle = "Error01"
+            errorDesc = ""
+            ErrorMsg = 'ErrorTitle="%s" ErrorMessage="%s" System_Message="%s' %(errorTitle, errorDesc, systemMessage)
+            logging.error(ErrorMsg)
+            raise Exception(ErrorMsg)
 # -----------------------------------------------------------------------------
 
 
@@ -169,6 +248,11 @@ class splunkInstance:
 #desiredPayload='''{"entity_rules": [{"rule_items": [{"field_type": "info", "field": "parentserviceinfo", "rule_type": "matches", "value": "deletemeparentservice-dc100"}], "rule_condition": "AND"}], "permissions": {"read": true, "group": {"read": true, "delete": true, "write": true}, "user": "admin", "delete": true, "write": true}, "object_type": "service", "sec_grp": "default_itsi_security_group"}'''
 
 
-# Running the action
+# Creating a basic post
 #splunk_server = splunkInstance(host='SomeIP', authPass='PASS')
 #splunk_server.basic_post(payload=desiredPayload, endpointPath=inputEpp,serviceId=inputServiceId)
+
+
+# Retrieving Correlation Searches from ITSI
+#splunk_server = splunkInstance(authPass='mypass')
+#splunk_server.retrieve_search_jobs(recordSearches=1)
