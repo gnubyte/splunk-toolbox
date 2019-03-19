@@ -1,7 +1,7 @@
 # -------------------------
 # @Author: Patrick Hastings
 # @Date: 02/22/2018
-# @Version: 1.0.0
+# @Version: 1.1.2
 # @Notes: WIP
 # -------------------------
 import requests
@@ -153,7 +153,14 @@ class splunkInstance:
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             currentRequest = requests.post(auth=(self.authUser, self.authPass),url=tempUrl,json=payload, headers=headers, verify=False)
             try:
-                print (currentRequest.status_code)
+                statusCode = currentRequest.status_code
+                print (statusCode)
+                if (str(statusCode) == '200'):
+                    print('Posted OK')
+                if (str(statusCode) == '500'):
+                    print('Failed to find that ITSI_Group_ID in the KV store')
+                if (str(statusCode) == '401'):
+                    print('Authentication Error - Change your username and or password')
             except Exception as responseStatusCode:
                 print('There was no HTTP response code  or the response code was botched')
                 print(responseStatusCode)
@@ -293,5 +300,5 @@ class splunkInstance:
 
 #posting update to ITSI notable event group/episode group
 splunk_server = splunkInstance(authPass='mypass')
-payload ={"status":"5"}
+payload ='''{"status":"5"}'''
 splunk_server.post_update_to_notable_event_group()
