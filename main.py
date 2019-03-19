@@ -80,6 +80,8 @@ class splunkInstance:
         elif(ssl_input == 0):
             sslReturn = 'http'
             sreturn(sslReturn)
+
+
     def __interpret_colon(self, inputMgmtPort):
         '''
         Private method that reads the input management port from the user to determine,
@@ -128,6 +130,38 @@ class splunkInstance:
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             currentRequest = requests.post(auth=(self.authUser, self.authPass),url=tempUrl,json=payload, headers=headers, verify=False)
             print (currentRequest.status_code)
+        else:
+            # was not a valid json
+            print('invalid Json submitted')
+
+    def post_update_to_notable_event_group(self, payload=None, endpointPath=None, itsi_group_id=None):
+        '''
+        Public function
+        Sends non garbage posts, free of charge
+        TODO: clean this up. Was made hastily while watching an ITSI load process.
+        TODO: url check end to see if ends in slash, if not, inject slashes
+        '''
+        payload = str(payload)
+        isValidJson = self.__is_json(payload)
+        if (self.debug == True):
+            print('JSON is valid status: '+str(isValidJson))
+        if (isValidJson == True):
+            if (self.debug==True):
+                # Quick blurb to let us know where we reached
+                print('Debug Block 2499A hit: hey its valid JSON')
+            tempUrl = self.baseUrl+"/servicesNS/nobody/SA-ITOA/event_management_interface/notable_event_group/" +str(itsi_group_id)+"/?is_partial_data=1"
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            currentRequest = requests.post(auth=(self.authUser, self.authPass),url=tempUrl,json=payload, headers=headers, verify=False)
+            try:
+                print (currentRequest.status_code)
+            except Exception as responseStatusCode:
+                print('There was no HTTP response code  or the response code was botched')
+                print(responseStatusCode)
+            try:
+                print (currentRequest.text)
+            except Exception as responseTextError:
+                print('There was no Response text or it was botched, see reason:\n')
+                print(responseTextError)
         else:
             # was not a valid json
             print('invalid Json submitted')
@@ -256,3 +290,8 @@ class splunkInstance:
 # Retrieving Correlation Searches from ITSI
 #splunk_server = splunkInstance(authPass='mypass')
 #splunk_server.retrieve_search_jobs(recordSearches=1)
+
+#posting update to ITSI notable event group/episode group
+splunk_server = splunkInstance(authPass='mypass')
+payload ={"status":"5"}
+splunk_server.post_update_to_notable_event_group()
