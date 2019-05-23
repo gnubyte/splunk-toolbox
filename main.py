@@ -1,12 +1,13 @@
 # -------------------------
 # @Author: Patrick Hastings
 # @Date: 02/22/2018
-# @Version: 1.1.2
+# @Version: 1.2.0
 # @Notes: WIP
 # -------------------------
 import requests
 import logging
 import json
+import time
 
 
 # ------------
@@ -242,6 +243,30 @@ class splunkInstance:
             logging.error(ErrorMsg)
             raise Exception(ErrorMsg)
 
+    def retrieve_configured_saved_searches(self, recordSearches=0):
+        '''
+        Retrieves saved searches from search head
+        '''
+        try:
+            self.__debug_message('Starting retrieval of saved splunk searches')
+            endpointPath = "/services/saved/searches"
+            tempUrl = self.baseUrl+str(endpointPath)
+            currentRequest = requests.get(auth=(self.authUser, self.authPass),url=tempUrl,verify=False)
+            if (recordSearches==1):
+                timestr = time.strftime("%Y%m%d-%H%M%S")
+                recordSearchesFile = open(timestr + '__recordedCorrelationSearches.xml', 'w')
+                recordSearchesFile.write(str(currentRequest.text))
+                recordSearchesFile.close() 
+            else:
+                print(currentRequest.text)
+        except Exception as retrieveSavedSearchError01:
+            errorTitle ="retrieveSavedSearchError01"
+            errorDesc = "error when trying to grab a core splunk saved search detail"
+            systemMessage = str(retrieveSavedSearchError01)
+            ErrorMsg = 'ErrorTitle="%s" ErrorMessage="%s" System_Message="%s' % (errorTitle, errorDesc, systemMessage)
+            logging.error(ErrorMsg)
+            raise Exception(ErrorMsg)
+
     def retrieve_search_jobs(self, recordSearches=0):
         '''
         Retrieves correlation_searches from Splunk ITSI
@@ -257,7 +282,8 @@ class splunkInstance:
             tempUrl = self.baseUrl+str(endpointPath)
             currentRequest = requests.get(auth=(self.authUser, self.authPass),url=tempUrl,verify=False)
             if (recordSearches==1):
-                recordSearchesFile = open('recordedSearches.xml', 'w')
+                timestr = time.strftime("%Y%m%d-%H%M%S")
+                recordSearchesFile = open(timestr+'__recordedSearches.xml', 'w')
                 recordSearchesFile.write(str(currentRequest.text))
                 recordSearchesFile.close()
             self.__debug_message(msg='Got past current_requests')
@@ -270,6 +296,8 @@ class splunkInstance:
             ErrorMsg = 'ErrorTitle="%s" ErrorMessage="%s" System_Message="%s' %(errorTitle, errorDesc, systemMessage)
             logging.error(ErrorMsg)
             raise Exception(ErrorMsg)
+
+
 # -----------------------------------------------------------------------------
 
 
@@ -299,6 +327,10 @@ class splunkInstance:
 #splunk_server.retrieve_search_jobs(recordSearches=1)
 
 #posting update to ITSI notable event group/episode group
-splunk_server = splunkInstance(authPass='mypass')
-payload ='''{"status":"5"}'''
-splunk_server.post_update_to_notable_event_group()
+#splunk_server = splunkInstance(authPass='mypass')
+#payload ='''{"status":"5"}'''
+#splunk_server.post_update_to_notable_event_group()
+
+# Retrieving regular saved searches from Core Splunk
+#splunk_server = splunkInstance(host='someIP', authPass='PASS')
+#splunk_server.retrieve_configured_saved_searches(recordSearches=1)

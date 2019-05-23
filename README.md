@@ -1,6 +1,6 @@
 # splunk-toolbox
 
-## Version 1.1.2
+## Version 1.2.0
 A better wrapper around the Splunk ITSI Rest API and Splunk Core API for anyone feeling the pain
 
 
@@ -38,3 +38,14 @@ splunk_server = splunkInstance(authPass='mypass')
 payload ={"status":"5"}
 splunk_server.post_update_to_notable_event_group(payload=payload, )
 ```
+
+
+#### Retrieve all Splunk Core Searches on a given server
+
+if record Searches == 1, a file with the name `recordedSearches.xml` will be generated and saved
+
+```
+splunk_server = splunkInstance(host='someIP', authPass='PASS')
+splunk_server.retrieve_configured_saved_searches(recordSearches=1)
+```
+
