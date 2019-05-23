@@ -12,14 +12,15 @@ import time
 
 # ------------
 # Globals
+name = "splunk_toolbox"
 logging.basicConfig(filename="betterSplunkITSI.log", filemode='w', level=logging.DEBUG, format='%(asctime)s.%(msecs)03d %(levelname)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S' )
-debug = 1
+debug = 0
 # End Globals
 # ------------
 
 class splunkInstance:
     
-    def __init__(self, host='127.0.0.1', mgmtPort='8089', authUser='admin', authPass='changeme', paramSsl='1', apiVersion='vLatest', debug=False):
+    def __init__(self, host='127.0.0.1', mgmtPort='8089', authUser='admin', authPass='changeme', paramSsl='1', apiVersion='vLatest', debug=False, logging=0):
         '''
         SplunkInstance:
         This class should represent a single splunk server connection

@@ -1,0 +1,9 @@
+README.md
+setup.py
+splunktoolbox
+splunk_toolbox/__init__.py
+splunk_toolbox.egg-info/PKG-INFO
+splunk_toolbox.egg-info/SOURCES.txt
+splunk_toolbox.egg-info/dependency_links.txt
+splunk_toolbox.egg-info/requires.txt
+splunk_toolbox.egg-info/top_level.txt

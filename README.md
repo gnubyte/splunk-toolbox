@@ -2,8 +2,31 @@
 
 ## Version 1.2.0
 A better wrapper around the Splunk ITSI Rest API and Splunk Core API for anyone feeling the pain
+[Python PyPi PIP package](https://pypi.org/project/splunk-toolbox/)
+[Github Repository](https://github.com/gnubyte/splunk-toolbox)
 
 
+## Intended Runtime & Required Packages
+
+** Python V3.x
+** see requirements.txt for requirements
+
+## Installation in python 3
+
+Installation via pip
+
+If pip3 is your default python package installer on the path (for most it references python2's version of pip...)
+```
+pip install splunk_toolbox
+```
+
+If that fails, check your `pip --version` to see which version of python it is using
+
+Additionally try:
+
+```
+pip3 install splunk_toolbox
+```
 
 ## Version table
  - 1.0.0 initial PoC/format
@@ -26,6 +49,8 @@ functioning, we are using sftp calls instead or core API.
 
 #### Retrieve active search jobs from ITSI
 ```
+from splunk_toolbox import splunkInstance
+
 splunk_server = splunkInstance(authPass='mypass')
 splunk_server.retrieve_search_jobs(recordSearches=1)
 ```
@@ -35,6 +60,9 @@ splunk_server.retrieve_search_jobs(recordSearches=1)
 
 
 ```
+from splunk_toolbox import splunkInstance
+
+
 splunk_server = splunkInstance(authPass='mypass')
 payload ={"status":"5"}
 splunk_server.post_update_to_notable_event_group(payload=payload, )
@@ -46,6 +74,8 @@ splunk_server.post_update_to_notable_event_group(payload=payload, )
 if record Searches == 1, a file with the name `recordedSearches.xml` will be generated and saved with todays date and time
 
 ```
+from splunk_toolbox import splunkInstance
+
 splunk_server = splunkInstance(host='someIP', authPass='PASS')
 splunk_server.retrieve_configured_saved_searches(recordSearches=1)
 ```

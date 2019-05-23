@@ -1,0 +1,3 @@
+#!/usr/bin/env python
+
+echo "Starting installation of splunktoolbox via pip"
